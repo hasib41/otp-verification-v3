@@ -1001,9 +1001,20 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && state !== 'idle') reset();
 });
 
-/* An orbit measured against one viewport is wrong on another. Nothing is
-   mid-flight at rest, so dropping back to idle is the honest response. */
+/* An orbit measured against one viewport is wrong on another — but only a
+   WIDTH change can invalidate it, because the width is the only thing that
+   moves the row it was measured from.
+
+   Guarding on width rather than on "a resize happened" is what makes this
+   work on a phone at all. Both the soft keyboard and the disappearing URL bar
+   fire resize with the height alone changing — and check() disables the
+   inputs, which blurs the field and closes the keyboard, so on mobile a
+   height-only resize arrives almost exactly when the gyre starts. Resetting
+   on that threw the whole animation away on the frame it began. */
+let vw = innerWidth;
 addEventListener('resize', () => {
+  if (innerWidth === vw) return;         // height only — keyboard or URL bar
+  vw = innerWidth;
   if (state === 'checking') reset();
 });
 
