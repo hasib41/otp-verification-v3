@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTP Verification v3 — four boxes that spin into one</title>
+  <meta name="description" content="A four-digit verification field that verifies itself: the row curls onto an orbit, the four digits spin a turn and a quarter, then screw down into a single tile that becomes a check." />
+  <meta name="theme-color" content="#07080a" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="OTP Verification v3 — four boxes that spin into one" />
+  <meta property="og:description" content="The row curls onto an orbit, spins a turn and a quarter, and screws down into one verified tile." />
+  <link rel="icon" type="image/png" href="./favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>document.documentElement.classList.add('js')</script>
+  <link rel="stylesheet" href="./app.css" />
+</head>
+<body>
+  <div class="room" aria-hidden="true"></div>
+
+  <main class="stage">
+    <header class="masthead">
+      <p class="masthead__eyebrow">Zero dependencies</p>
+      <h1 class="masthead__title">OTP Verification <span class="masthead__ver">v3</span></h1>
+    </header>
+
+    <!--
+      One form, five states, driven by a single data-state on .sheet:
+        idle → filling → checking → ok        (or → error → back to filling)
+
+      Everything visual keys off that attribute, so the component has exactly
+      one source of truth. app.js owns only what CSS cannot: the polar maths
+      that curls the row onto a circle, the turn and a quarter it spins there, and
+      the screw down into a single tile.
+    -->
+    <section class="sheet" data-state="idle" aria-label="Phone verification">
+      <span class="sheet__grabber" aria-hidden="true"></span>
+
+      <form class="verify" id="verify" novalidate>
+        <h2 class="verify__title" id="v-title">
+          <span class="verify__title-in" data-title-idle>Verify your number</span>
+          <span class="verify__title-in" data-title-ok>Verified successfully</span>
+        </h2>
+        <p class="verify__sub" id="v-sub">
+          <span class="verify__sub-in" data-sub-idle>Enter the 4-digit code we sent to <b>+1 415 ••• 0142</b>.</span>
+          <span class="verify__sub-in" data-sub-ok>Your number has been verified.</span>
+        </p>
+
+        <!--
+          The stage the spin happens on. The orbit is far taller than the row,
+          and that clearance is carried permanently by the neighbours' margins
+          (see --gyre-clear in app.css) — so the boxes travel on transforms out
+          of a layout box that never moves, and nothing below them twitches.
+        -->
+        <div class="code-wrap">
+          <!-- The track the four ride, and the point they collapse onto. Both
+               are sized and placed from the measured row by app.js, then only
+               ever scaled, rotated and faded. -->
+          <div class="orbit" aria-hidden="true">
+            <svg class="orbit__ring" data-track viewBox="0 0 100 100" focusable="false">
+              <circle class="orbit__path" cx="50" cy="50" r="50"
+                      pathLength="1" vector-effect="non-scaling-stroke" />
+            </svg>
+            <span class="orbit__hub" data-hub></span>
+          </div>
+
+          <div class="code" role="group" aria-labelledby="v-title" aria-describedby="v-help v-err" data-code>
+            <label class="slot">
+              <span class="sr-only">Digit 1 of 4</span>
+              <input class="slot__input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"
+                     autocomplete="one-time-code" enterkeyhint="done" aria-describedby="v-err" />
+              <span class="slot__win" aria-hidden="true"><span class="slot__digit"></span></span>
+              <span class="slot__glow" aria-hidden="true"></span>
+              <svg class="slot__spark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <rect class="slot__arc" x="1" y="1" width="62" height="62" rx="15"
+                      pathLength="1" stroke-linecap="round" />
+              </svg>
+            </label>
+            <label class="slot">
+              <span class="sr-only">Digit 2 of 4</span>
+              <input class="slot__input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+                     autocomplete="off" enterkeyhint="done" aria-describedby="v-err" />
+              <span class="slot__win" aria-hidden="true"><span class="slot__digit"></span></span>
+              <span class="slot__glow" aria-hidden="true"></span>
+              <svg class="slot__spark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <rect class="slot__arc" x="1" y="1" width="62" height="62" rx="15"
+                      pathLength="1" stroke-linecap="round" />
+              </svg>
+            </label>
+            <label class="slot">
+              <span class="sr-only">Digit 3 of 4</span>
+              <input class="slot__input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+                     autocomplete="off" enterkeyhint="done" aria-describedby="v-err" />
+              <span class="slot__win" aria-hidden="true"><span class="slot__digit"></span></span>
+              <span class="slot__glow" aria-hidden="true"></span>
+              <svg class="slot__spark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <rect class="slot__arc" x="1" y="1" width="62" height="62" rx="15"
+                      pathLength="1" stroke-linecap="round" />
+              </svg>
+            </label>
+            <label class="slot">
+              <span class="sr-only">Digit 4 of 4</span>
+              <input class="slot__input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+                     autocomplete="off" enterkeyhint="done" aria-describedby="v-err" />
+              <span class="slot__win" aria-hidden="true"><span class="slot__digit"></span></span>
+              <span class="slot__glow" aria-hidden="true"></span>
+              <svg class="slot__spark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <rect class="slot__arc" x="1" y="1" width="62" height="62" rx="15"
+                      pathLength="1" stroke-linecap="round" />
+              </svg>
+            </label>
+          </div>
+
+          <!-- What the four become. Centred on the row by the grid, never with
+               a transform — the transform is the animation. Two rings rather
+               than one: the second leaves later and travels further, which is
+               what stops a single expanding outline reading as a spinner. -->
+          <div class="seal" aria-hidden="true">
+            <span class="seal__ring"></span>
+            <span class="seal__ring seal__ring--wide"></span>
+            <span class="seal__tile">
+              <span class="seal__sheen"></span>
+              <svg viewBox="0 0 40 40" fill="none" focusable="false">
+                <path class="seal__check" d="M11 20.5 L17.5 27 L29 15" pathLength="1"
+                      stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+
+          <!-- Light motes. app.js fills this on the way to "ok" and empties it
+               on reset, so an idle page carries no throwaway nodes. -->
+          <div class="burst" data-burst aria-hidden="true"></div>
+        </div>
+
+        <p class="verify__err" id="v-err" data-err></p>
+        <p class="sr-only" id="v-help">Four digits. You can paste the whole code into any box.</p>
+
+        <!-- Resend and the secure badge share one grid cell, so the success
+             swap is a cross-fade in place — the sheet never changes height. -->
+        <div class="verify__actions">
+          <div class="verify__foot">
+            <span class="verify__foot-label">Didn't receive the code?</span>
+            <button type="button" class="resend" data-resend>
+              <span class="resend__label" data-resend-label>Resend</span>
+            </button>
+          </div>
+
+          <div class="verify__done" inert data-done>
+            <span class="secure">
+              <svg class="secure__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <rect x="4.5" y="10.5" width="15" height="10" rx="3" stroke="currentColor" stroke-width="1.7" />
+                <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+              </svg>
+              Verified and secure
+            </span>
+            <button type="button" class="cta" data-continue>Continue</button>
+          </div>
+        </div>
+
+        <button type="submit" class="sr-only">Verify code</button>
+      </form>
+
+      <!--
+        The designed stand-in for the OS autofill chip. On a real Android device
+        app.js hands this job to the Web OTP API instead and this never appears —
+        see readOtpFromSms() in app.js.
+      -->
+      <aside class="sms" data-sms>
+        <span class="sms__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" focusable="false">
+            <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.3 9.3 0 0 1-2.6-.4L4 21l1.6-4a8.2 8.2 0 0 1-1.6-5A8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <span class="sms__body">
+          <span class="sms__from">Message · OTP</span>
+          <span class="sms__text"><b data-sms-code>4719</b> is your verification code.</span>
+        </span>
+        <button type="button" class="sms__fill" data-fill>Fill</button>
+      </aside>
+    </section>
+
+    <p class="hint">
+      Type it, paste it, or let the message fill it — <span class="hint__b">4719</span> is the good one.
+    </p>
+  </main>
+
+  <p class="sr-only" role="status" aria-live="polite" data-live></p>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
